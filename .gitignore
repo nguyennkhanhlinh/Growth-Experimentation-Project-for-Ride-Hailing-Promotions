@@ -1,0 +1,25 @@
+# Dữ liệu thô 
+data/
+*.parquet
+*.csv
+
+# Môi trường ảo
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Notebook checkpoints
+*.ipynb_checkpoints
