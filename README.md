@@ -8,9 +8,11 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 
 - Làm sạch và kiểm định chất lượng dữ liệu (~11 triệu chuyến đi).
 - Phân tích **hành vi theo thời gian** (giờ, ngày, cao điểm) 
-- Phân tích **hành vi theo không gian** (hotspot đón/trả khách)
+- Phân tích **hành vi theo không gian** (hotspot đón/trả khách, ...)
 - Phân tích **hành vi chuyến đi** (quãng đường, giá cước, tip, phương thức thanh toán).
 - Đề xuất **feature catalog** 
+- Summary **deck EDA 5 slide** (`eda_summary_deck.html`).
+- Ghi chú **tư duy nhân quả** làm nền cho thiết kế thử nghiệm khuyến mãi (`Causal_thinking.md`).
 
 ---
 
@@ -25,6 +27,8 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 | `3. Geo_pattern_analysis.ipynb` | Phân tích hành vi rider không gian: pickup/dropoff hotspots |
 | `4. Behavior_analysis.ipynb` | Phân tích hành vi: trip distance, fare, tip, payment |
 | `5. feature_catalog.xlsx` | Danh mục feature đề xuất |
+| `eda_summary_deck.html` | Deck tóm tắt EDA (5 slide)|
+| `Causal_thinking.md` | Ghi chú tư duy nhân quả: câu hỏi nhân quả, treatment/outcome, confounders, DAG, selection bias |
 | `data/` | Dữ liệu thô  |
 
 ---
