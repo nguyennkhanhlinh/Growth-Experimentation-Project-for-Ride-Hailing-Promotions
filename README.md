@@ -1,7 +1,6 @@
 # Growth & Experimentation Project for Ride-Hailing Promotions
 
 Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation) dựa trên bộ dữ liệu **NYC Yellow Taxi Trip Data** 
-
 ---
 
 ## 🎯 Mục tiêu dự án
@@ -11,7 +10,7 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 - Phân tích **hành vi theo không gian** (hotspot đón/trả khách, ...)
 - Phân tích **hành vi chuyến đi** (quãng đường, giá cước, tip, phương thức thanh toán).
 - Đề xuất **feature catalog** 
-- Summary **deck EDA 5 slide** (`eda_summary_deck.html`).
+- Summary **deck EDA 5 slide** (`index.html`).
 - Ghi chú **tư duy nhân quả** làm nền cho thiết kế thử nghiệm khuyến mãi (`Causal_thinking.md`).
 
 ---
@@ -27,7 +26,7 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 | `3. Geo_pattern_analysis.ipynb` | Phân tích hành vi rider không gian: pickup/dropoff hotspots |
 | `4. Behavior_analysis.ipynb` | Phân tích hành vi: trip distance, fare, tip, payment |
 | `5. feature_catalog.xlsx` | Danh mục feature đề xuất |
-| `eda_summary_deck.html` | Deck tóm tắt EDA (5 slide)|
+| `index.html` | Deck tóm tắt EDA 5 slide(Link:)|
 | `Causal_thinking.md` | Ghi chú tư duy nhân quả: câu hỏi nhân quả, treatment/outcome, confounders, DAG, selection bias |
 | `data/` | Dữ liệu thô  |
 
