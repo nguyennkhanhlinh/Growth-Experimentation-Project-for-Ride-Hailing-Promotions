@@ -26,7 +26,7 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 | `3. Geo_pattern_analysis.ipynb` | Phân tích hành vi rider không gian: pickup/dropoff hotspots |
 | `4. Behavior_analysis.ipynb` | Phân tích hành vi: trip distance, fare, tip, payment |
 | `5. feature_catalog.xlsx` | Danh mục feature đề xuất |
-| `index.html` | Deck tóm tắt EDA 5 slide(Link:)|
+| `index.html` | Deck tóm tắt EDA 5 slide · [Link](https://nguyennkhanhlinh.github.io/Growth-Experimentation-Project-for-Ride-Hailing-Promotions/) |
 | `Causal_thinking.md` | Ghi chú tư duy nhân quả: câu hỏi nhân quả, treatment/outcome, confounders, DAG, selection bias |
 | `data/` | Dữ liệu thô  |
 
