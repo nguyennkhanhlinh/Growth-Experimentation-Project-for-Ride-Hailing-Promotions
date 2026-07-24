@@ -17,18 +17,25 @@ Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation)
 
 ## 📁 Cấu trúc dự án
 
-| File | Nội dung |
-|------|----------|
-| `Data.ipynb` | SETUP, OVERVIEW|
-| `1. Data_Dictionary.md` | Từ điển dữ liệu: mô tả 20 trường của NYC Yellow Taxi |
-| `1. data_quality_report.md` | Báo cáo chất lượng dữ liệu: volume, missing, duplicate, invalid values |
-| `2. Time_pattern_analysis.ipynb` | Phân tích hành vi rider theo thời gian (hour-of-day, cao điểm...) |
-| `3. Geo_pattern_analysis.ipynb` | Phân tích hành vi rider không gian: pickup/dropoff hotspots |
-| `4. Behavior_analysis.ipynb` | Phân tích hành vi: trip distance, fare, tip, payment |
-| `5. feature_catalog.xlsx` | Danh mục feature đề xuất |
-| `index.html` | Deck tóm tắt EDA 5 slide · [Link](https://nguyennkhanhlinh.github.io/Growth-Experimentation-Project-for-Ride-Hailing-Promotions/) |
-| `Causal_thinking.md` | Ghi chú tư duy nhân quả: câu hỏi nhân quả, treatment/outcome, confounders, DAG, selection bias |
-| `data/` | Dữ liệu thô  |
+```
+Growth & Experimentation Project/
+├── data/                              # Dữ liệu thô 
+├── EDA/                               # Phân tích khám phá dữ liệu
+│   ├── Data.ipynb                     # Setup, overview
+│   ├── 1. Data_Dictionary.md          # Từ điển dữ liệu: 20 trường NYC Yellow Taxi
+│   ├── 1. data_quality_report.md      # Chất lượng dữ liệu: volume, missing, duplicate, invalid
+│   ├── 2. Time_pattern_analysis.ipynb # Hành vi theo thời gian (hour-of-day, cao điểm)
+│   ├── 3. Geo_pattern_analysis.ipynb  # Hành vi không gian: pickup/dropoff hotspots
+│   ├── 4. Behavior_analysis.ipynb     # Trip distance, fare, tip, payment
+│   └── 5. feature_catalog.xlsx        # Danh mục feature đề xuất
+├── Causal_thinking/                   # Tư duy nhân quả
+│   ├── Causal_thinking.md             # Câu hỏi nhân quả, treatment/outcome, confounders, selection bias
+│   └── causal_dag.png                 # Sơ đồ DAG nhân quả
+├── index.html                         # Deck tóm tắt EDA 5 slide
+└── README.md
+```
+
+🔗 **Summary EDA:** [Link](https://nguyennkhanhlinh.github.io/Growth-Experimentation-Project-for-Ride-Hailing-Promotions/)
 
 ---
 
