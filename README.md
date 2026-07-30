@@ -31,6 +31,12 @@ Growth & Experimentation Project/
 ├── Causal_thinking/                   # Tư duy nhân quả
 │   ├── Causal_thinking.md             # Câu hỏi nhân quả, treatment/outcome, confounders, selection bias
 │   └── causal_dag.png                 # Sơ đồ DAG nhân quả
+├── 02. Synthetic_data/                     # Sinh dữ liệu cấp rider 
+│   ├── gen_synthetic_data_v_final.ipynb    
+├── 03. Segmentation/                       # Phân khúc khách hàng
+│   ├── segmentation.ipynb                  
+├── 04. AB Testing/                         # Thiết kế & phân tích thử nghiệm
+│   └── experiment.ipynb                  
 ├── index.html                         # Deck tóm tắt EDA 5 slide
 └── README.md
 ```
