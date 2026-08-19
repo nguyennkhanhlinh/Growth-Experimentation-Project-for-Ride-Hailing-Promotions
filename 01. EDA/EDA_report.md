@@ -353,6 +353,5 @@ Kết luận:
 
 - Chuyến ngắn và trung bình chủ yếu là di chuyển nội Manhattan.
 - Chuyến dài và rất dài bắt đầu bị chi phối bởi route sân bay, đặc biệt JFK và LaGuardia.
-- Điều này ủng hộ việc tạo các feature riêng như `typical_distance`, `route_entropy` và `pct_airport`.
 
 ---
