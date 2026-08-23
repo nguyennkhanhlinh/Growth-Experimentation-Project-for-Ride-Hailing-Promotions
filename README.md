@@ -2,7 +2,7 @@
 
 Dự án phân tích dữ liệu & thiết kế thử nghiệm (experimentation) dựa trên bộ dữ liệu **NYC Yellow Taxi Trip Data**.
 
-Link demo: https://nguyennkhanhlinh.github.io/Growth-Experimentation-Project-for-Ride-Hailing-Promotions/
+Link demo: https://growth-experimentation-project-for-phi.vercel.app/
 
 ---
 
