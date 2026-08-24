@@ -321,6 +321,7 @@
     var extra = [];
     if (opts.ref !== undefined) extra.push(opts.ref);
     if (opts.threshold !== undefined) extra.push(opts.threshold);
+    rows.forEach(function (r) { if (r.threshold !== undefined) extra.push(r.threshold); });
     var lo = Math.min.apply(null, rows.map(function (r) { return r.lo; }).concat(extra));
     var hi = Math.max.apply(null, rows.map(function (r) { return r.hi; }).concat(extra));
     var span = hi - lo || 1; lo -= span * 0.10; hi += span * 0.10;
@@ -343,15 +344,25 @@
       rl.setAttribute("fill", cssVar("--chart-ref", "#a9effb"));
       g.appendChild(rl);
     }
-    /* ngưỡng phụ (breakeven) */
+    /* ngưỡng phụ (breakeven) dùng chung cho mọi dòng — chỉ hợp lệ khi các dòng
+       cùng một ngưỡng; khi mỗi dòng có ngưỡng riêng thì truyền r.threshold */
     if (opts.threshold !== undefined) {
       g.appendChild(n("line", { x1: x(opts.threshold), x2: x(opts.threshold), y1: 4, y2: plotBottom, stroke: STATUS.warning, "stroke-width": 2, "stroke-dasharray": "3 5", opacity: ".8" }));
+      var tl = text(x(opts.threshold), plotBottom + 34, (opts.thresholdLabel || "hòa vốn") + " " + fmt(opts.threshold, 4), "label-text");
+      tl.setAttribute("fill", STATUS.warning);
+      g.appendChild(tl);
     }
 
     rows.forEach(function (r, i) {
       var cy = i * rowH + rowH / 2, marks = [];
       var color = r.color || (r.main ? SERIES[0] : (r.covers === false ? STATUS.critical : SERIES[2]));
       g.appendChild(text(labelW - 12, cy + 4, r.label, r.main ? "label-strong" : "label-text", "end"));
+      /* ngưỡng của riêng dòng này — vẽ trước để nét CI và marker nằm đè lên */
+      if (r.threshold !== undefined) {
+        g.appendChild(n("line", { x1: x(r.threshold), x2: x(r.threshold), y1: cy - 13, y2: cy + 13,
+          stroke: cssVar("--ink-4", "#8fa9ba"), "stroke-width": 2, "stroke-dasharray": "3 3",
+          "stroke-linecap": "round", opacity: ".9" }));
+      }
       var line = n("line", { x1: x(r.lo), x2: x(r.hi), y1: cy, y2: cy, stroke: color, "stroke-width": 2, "stroke-linecap": "round", class: "mark" });
       g.appendChild(line); marks.push(line);
       [r.lo, r.hi].forEach(function (v) {
@@ -363,6 +374,10 @@
       g.appendChild(text(W - 6, cy + 4, fmt(r.est, 4), "label-strong", "end"));
 
       var tr = [{ k: "Ước lượng", v: fmt(r.est, 4), color: color }, { k: "95% CI", v: "[" + fmt(r.lo, 3) + ", " + fmt(r.hi, 3) + "]" }];
+      if (r.threshold !== undefined) {
+        tr.push({ k: "Hòa vốn riêng", v: fmt(r.threshold, 4) });
+        tr.push({ k: "Cách hòa vốn", v: (r.est - r.threshold > 0 ? "+" : "") + fmt(r.est - r.threshold, 4) });
+      }
       if (r.gap !== undefined) tr.push({ k: "Lệch vs sự thật", v: (r.gap > 0 ? "+" : "") + fmt(r.gap, 4) });
       if (r.covers !== undefined) tr.push({ k: "Phủ sự thật", v: r.covers ? "Có" : "Không" });
       var hit = n("rect", { x: 0, y: i * rowH, width: W, height: rowH, class: "hit" });

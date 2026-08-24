@@ -36,6 +36,12 @@
     return decision === "Triển khai" ? "good" : (decision === "Cân nhắc" ? "warning" : "critical");
   }
 
+  /* marker trong biểu đồ tô theo quyết định thật của từng cụm, không theo cụm
+     đang được chọn — chọn cụm nào chỉ đổi độ đậm của nhãn */
+  function decisionMark(decision) {
+    return C.STATUS[resultKind(decision)];
+  }
+
   function card(opts) {
     var c = el("div", "card " + (opts.cls || ""));
     if (opts.title) {
@@ -231,6 +237,23 @@
     })));
 
     f.appendChild(el("div", "mb"));
+    f.appendChild(sectionLead(null, "Rải đại trà hay chọn lọc?"));
+    f.appendChild(card({
+      title: "Hai kịch bản triển khai",
+      sub: esc(o.rollout.note),
+      body: [table(
+        ["Kịch bản", "Rider", "Chi phí", "Doanh thu biên", "Lợi nhuận", "ROI", "Quyết định"],
+        o.rollout.rows.map(function (r) {
+          return [
+            esc(r.name), esc(r.n), esc(r.cost), esc(r.revenue),
+            esc(r.profit), esc(r.roi), chip(resultKind(r.decision), r.decision)
+          ];
+        }),
+        { num: [1, 2, 3, 4, 5] }
+      )]
+    }));
+
+    f.appendChild(el("div", "mb"));
     f.appendChild(lead("<strong>Kết luận tổng quát:</strong> voucher có tác động tích cực, nhưng chỉ nên triển khai <strong>có chọn lọc</strong> cho nhóm target, không nên rải đại trà cho toàn bộ rider."));
 
     return f;
@@ -297,12 +320,14 @@
             est: x.uplift,
             lo: x.upliftLo,
             hi: c.hi * campaignState.carry / 100,
-            color: i === campaignState.segment ? (x.decision === "Triển khai" ? S[0] : ST.critical) : S[2],
+            /* mỗi cụm một ngưỡng hòa vốn riêng vì cước trung bình khác nhau;
+               vẽ một đường chung sẽ khiến cụm 0 trông như đã vượt ngưỡng */
+            threshold: x.breakeven,
+            color: decisionMark(x.decision),
             main: i === campaignState.segment,
             note: x.decision
           };
         }),
-        threshold: r.breakeven,
         width: 620,
         labelW: 190
       }));
@@ -361,7 +386,7 @@
     resCard.appendChild(el("span", "rc-label", "Khuyến nghị"));
     resCard.appendChild(statusEl);
     var roiWrap = el("div", "");
-    roiWrap.appendChild(el("small", "rc-label", "ROI dự phóng"));
+    roiWrap.appendChild(el("small", "rc-label", "ROI"));
     roiWrap.appendChild(roiVal);
     resCard.appendChild(roiWrap);
     resCard.appendChild(explain);
@@ -378,7 +403,11 @@
     f.appendChild(sectionLead(null, "3. Kết quả chiến dịch"));
     f.appendChild(kpiHost);
     f.appendChild(sectionLead(null, "4. Ba cụm dưới cùng bộ tham số"));
-    f.appendChild(card({ body: [forestHost] }));
+    f.appendChild(card({
+      title: "Uplift so với ngưỡng hòa vốn riêng",
+      sub: "Vạch đứt xám trên mỗi dòng là ngưỡng hòa vốn của <strong>chính cụm đó</strong> — khác nhau vì cước trung bình mỗi cụm khác nhau. Chấm nằm bên phải vạch là vượt hòa vốn; màu chấm theo quyết định.",
+      body: [forestHost]
+    }));
     f.appendChild(el("div", "mb"));
     f.appendChild(compareHost);
 

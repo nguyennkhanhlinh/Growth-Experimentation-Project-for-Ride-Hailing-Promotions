@@ -15,19 +15,28 @@ window.DATA = {
       { label: "Khoảng tin cậy 95%", value: "1.69–2.24", accent: true,
         tag: { text: "> hoà vốn", kind: "good" }, note: "cận dưới vượt 1.3783" },
       { label: "Rider mục tiêu", value: "6,446", note: "32.2% quần thể" },
-      { label: "Lợi nhuận ròng", value: "$17,206", note: "chi phí $40,288" }
+      { label: "Chuyến tăng thêm", value: "12,679", note: "trên cụm target" },
+      { label: "Lợi nhuận ròng", value: "$17,206", tag: { text: "+42.7% ROI", kind: "good" },
+        note: "chi phí $40,288" }
     ],
     scale: [
-      { label: "Chuyến sau làm sạch", value: "10,444,717", tag: { text: "−5.7%", kind: "warning" },
+      { label: "Chuyến sau làm sạch", value: "10,444,717",
         note: "từ 11,077,206 chuyến thô" },
       { label: "Rider mô phỏng", value: "20,000", note: "14 cột hành vi" },
       { label: "Persona", value: "3", tag: { text: "K = 3", kind: "series1" },
         note: "ARI 2 seed 0.9751" },
-      { label: "Kết luận vững", value: "10 / 11", tag: { text: "1 mong manh", kind: "warning" },
-        note: "ngưỡng khai báo trước" },
-      { label: "Thiên lệch đo được", value: "+3.03", tag: { text: "naive", kind: "critical" },
-        note: "trên tác động thật 1.84" }
-    ]
+      { label: "Stress test", value: "5 / 5", tag: { text: "đạt", kind: "good" },
+        note: "seed · bootstrap · estimator · block · CI" }
+    ],
+    rollout: {
+      note: "Cùng một uplift, hai cách tiêu ngân sách cho hai kết cục ngược nhau.",
+      rows: [
+        { name: "Rải đại trà", n: "20,000", cost: "$125,000", revenue: "$123,500",
+          profit: "-$1,500", roi: "-1.2%", decision: "Dừng" },
+        { name: "Chọn lọc cụm target", n: "6,446", cost: "$40,288", revenue: "$57,494",
+          profit: "$17,206", roi: "+42.7%", decision: "Triển khai" }
+      ]
+    }
   },
   abtest: {
     cate: [
@@ -38,7 +47,7 @@ window.DATA = {
         cate: 1.6016,
         lo: 1.3944,
         hi: 1.8087,
-        fare: 16.51,
+        fare: 16.5076,
         decision: "Dừng"
       },
       {
@@ -48,7 +57,7 @@ window.DATA = {
         cate: 0.4073,
         lo: -0.1602,
         hi: 0.9747,
-        fare: 38.26,
+        fare: 38.2606,
         decision: "Dừng"
       },
       {
@@ -58,7 +67,7 @@ window.DATA = {
         cate: 1.9670,
         lo: 1.6902,
         hi: 2.2438,
-        fare: 22.67,
+        fare: 22.6722,
         decision: "Triển khai"
       }
     ],
