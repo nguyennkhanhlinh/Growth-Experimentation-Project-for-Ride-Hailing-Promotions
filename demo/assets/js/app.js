@@ -203,6 +203,9 @@
   var PAGES = {};
   var pageTitle = "";
   /* trạng thái máy tính — mặc định đúng giả định trong AB_testing_report */
+  /* dải của thanh điều chỉnh — dùng chung cho control và kịch bản what-if */
+  var V_MIN = 1, V_MAX = 10, U_MIN = 0.5, U_MAX = 3;
+
   var simState = {
     segment: 2,
     n: 6446,
@@ -484,8 +487,9 @@
     var nEl = el("input", "field-input");
     nEl.readOnly = true;
     var vEl = el("input", "field-input");
-    vEl.type = "number"; vEl.min = 2; vEl.max = 15; vEl.step = 0.5;
-    vEl.value = simState.voucher;
+    vEl.type = "text";
+    vEl.inputMode = "decimal";
+    vEl.value = simState.voucher.toFixed(2);
     var uEl = el("input", "field-input");
     uEl.readOnly = true;
 
@@ -501,9 +505,10 @@
       sync();
     });
     vEl.addEventListener("input", function () {
-      var v = +vEl.value;
-      if (v >= 1 && v <= 10) simState.voucher = v;
+      var v = parseFloat(String(vEl.value).replace(",", ".").replace(/[^\d.]/g, ""));
+      if (!isNaN(v) && v >= V_MIN && v <= V_MAX) simState.voucher = v;
     });
+    vEl.addEventListener("blur", function () { vEl.value = simState.voucher.toFixed(2); });
     sync();
 
     [["Chọn segment", sel], ["Số rider đủ điều kiện", nEl], ["Giá trị voucher", vEl], ["Kỳ vọng uplift", uEl]]
@@ -767,6 +772,21 @@
     };
   }
 
+  /* mốc gốc của một cụm — đúng giả định trong AB_testing_report,
+     dùng làm vế trái cố định của bảng what-if */
+  function simBase(i) {
+    var c = D.abtest.cate[i];
+    return {
+      segment: i,
+      n: c.n,
+      voucher: 5,
+      opex: 1.25,
+      margin: c.fare * D.abtest.defaults.take / 100,
+      uplift: c.cate,
+      days: 30
+    };
+  }
+
   function simDefaults(i) {
     var c = D.abtest.cate[i];
     return { n: c.n, margin: c.fare * D.abtest.defaults.take / 100, uplift: c.cate };
@@ -825,31 +845,8 @@
       pane.appendChild(btn);
       decHost.appendChild(pane);
 
-      /* --- what-if: ba chiều nhạy cảm lấy từ stress test --- */
-      whatHost.innerHTML = "";
-      whatHost.appendChild(el("p", "sim-head", "What-if nhanh"));
-      var impliedTake = simState.margin / CATE[simState.segment].fare;
-      [
-        ["Tăng giá voucher lên $8", { voucher: 8 }],
-        ["Uplift giảm còn 1.20", { uplift: 1.20 }],
-        ["Take rate giảm còn 15%", { margin: CATE[simState.segment].fare * 0.15 }]
-      ].forEach(function (w) {
-        var alt = Object.assign({}, simState, w[1]);
-        var x = simCompute(alt);
-        var row = el("div", "what-row");
-        row.innerHTML = "<span>" + esc(w[0]) + "</span><small>ROI</small>" +
-          '<b class="' + (x.roi >= 0 ? "good" : "bad") + '">' +
-          (x.roi >= 0 ? "" : "−") + Math.abs(x.roi).toFixed(1) + "%</b>";
-        whatHost.appendChild(row);
-      });
-      var more = el("a", "what-link", "Xem chi tiết kịch bản " + ico("arrow", 13));
-      more.href = "#simulate";
-      more.addEventListener("click", function () {
-        var t = document.getElementById("scenarios");
-        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      whatHost.appendChild(more);
-      void impliedTake;
+      /* --- what-if: vế trái là giá trị đang đặt, vế phải tự chỉnh --- */
+      paintWhat();
 
       /* --- ba cụm dưới cùng bộ tham số --- */
       var take = simState.margin / CATE[simState.segment].fare;
@@ -902,6 +899,76 @@
       if (refs.upliftOut) refs.upliftOut.textContent = simState.uplift.toFixed(2);
     }
 
+    /* ---------------------------------------------- khối what-if (dựng 1 lần)
+       Vế trái là mốc gốc của cụm và không đổi. Vế phải bám theo thanh điều
+       chỉnh bên trái. ROI mỗi dòng = ROI khi CHỈ tham số đó rời mốc gốc,
+       các tham số còn lại giữ ở mốc — nên đọc được đúng phần đóng góp của
+       từng thay đổi, thay vì ROI tổng đã trộn lẫn cả ba. */
+    var WHAT = [
+      { key: "voucher", label: "Voucher", money: true },
+      { key: "uplift",  label: "Uplift",  money: false },
+      { key: "margin",  label: "Margin",  money: true }
+    ];
+    var whatRows = [];
+
+    function whatFmt(spec, v) { return spec.money ? usd(v, 2) : v.toFixed(2); }
+
+    function buildWhat() {
+      whatHost.innerHTML = "";
+      whatRows = [];
+      whatHost.appendChild(el("p", "sim-head", "What-if nhanh"));
+      whatHost.appendChild(el("p", "what-note",
+        "Vế trái là mốc gốc. Kéo thanh bên trái để đổi vế phải và xem ROI của riêng thay đổi đó."));
+
+      WHAT.forEach(function (spec) {
+        var row = el("div", "what-item");
+
+        var head = el("div", "what-head");
+        head.appendChild(el("span", "what-key", esc(spec.label)));
+        var roiEl = el("b", "");
+        var roiBox = el("span", "what-roi", "<small>ROI</small>");
+        roiBox.appendChild(roiEl);
+        head.appendChild(roiBox);
+        row.appendChild(head);
+
+        var line = el("div", "what-line");
+        var fromEl = el("span", "what-from", "");
+        var toEl = el("b", "what-to", "");
+        line.appendChild(fromEl);
+        line.appendChild(el("span", "what-arrow", "→"));
+        line.appendChild(toEl);
+        row.appendChild(line);
+
+        whatHost.appendChild(row);
+        whatRows.push({ spec: spec, row: row, fromEl: fromEl, toEl: toEl, roiEl: roiEl });
+      });
+
+      var more = el("a", "what-link", "Xem chi tiết kịch bản " + ico("arrow", 13));
+      more.href = "#simulate";
+      more.addEventListener("click", function () {
+        var t = document.getElementById("scenarios");
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      whatHost.appendChild(more);
+    }
+
+    function paintWhat() {
+      var base = simBase(simState.segment);
+      whatRows.forEach(function (r) {
+        var k = r.spec.key;
+        var from = base[k], to = simState[k];
+        r.fromEl.textContent = whatFmt(r.spec, from);
+        r.toEl.textContent = whatFmt(r.spec, to);
+
+        var patch = {};
+        patch[k] = to;
+        var x = simCompute(Object.assign({}, base, patch));
+        r.roiEl.textContent = (x.roi >= 0 ? "" : "−") + Math.abs(x.roi).toFixed(1) + "%";
+        r.roiEl.className = x.roi >= 0 ? "good" : "bad";
+        r.row.classList.toggle("what-item-same", Math.abs(to - from) < 0.005);
+      });
+    }
+
     /* ------------------------------------------------ cột 1: tham số */
     paramHost.appendChild(el("p", "sim-head", "Tham số mô phỏng"));
 
@@ -925,17 +992,23 @@
       simState.segment = +segSel.value;
       var d = simDefaults(simState.segment);
       simState.n = d.n; simState.margin = d.margin; simState.uplift = d.uplift;
-      nIn.value = d.n; mIn.value = d.margin.toFixed(2);
+      nIn.value = nf(d.n); mIn.value = d.margin.toFixed(2);
       uRange.value = d.uplift; refs.upliftOut.textContent = d.uplift.toFixed(2);
       paint();
     });
     field("Chọn segment", segSel);
 
+    /* dùng input text thay type=number: ở locale VN trình duyệt render
+       type=number thành "1,25", lệch với phần còn lại của trang dùng dấu chấm */
     var nIn = el("input", "field-input");
-    nIn.type = "number"; nIn.min = 100; nIn.step = 1; nIn.value = simState.n;
+    nIn.type = "text";
+    nIn.inputMode = "numeric";
+    nIn.value = nf(simState.n);
     nIn.addEventListener("input", function () {
-      var v = +nIn.value; if (v > 0) { simState.n = v; paint(); }
+      var v = parseInt(String(nIn.value).replace(/[^\d]/g, ""), 10);
+      if (!isNaN(v) && v > 0) { simState.n = v; paint(); }
     });
+    nIn.addEventListener("blur", function () { nIn.value = nf(simState.n); });
     field("Số rider đủ điều kiện", nIn);
 
     var vWrap = el("div", "range-wrap");
@@ -944,33 +1017,41 @@
     vTop.innerHTML = "<span>$</span>";
     vTop.appendChild(refs.voucherOut);
     var vRange = el("input", "");
-    vRange.type = "range"; vRange.min = 1; vRange.max = 10; vRange.step = 0.5;
+    vRange.type = "range"; vRange.min = V_MIN; vRange.max = V_MAX; vRange.step = 0.5;
     vRange.value = simState.voucher;
     vRange.addEventListener("input", function () { simState.voucher = +vRange.value; paint(); });
     vWrap.appendChild(vTop); vWrap.appendChild(vRange);
     vWrap.appendChild(el("div", "range-labels", "<span>$1</span><span>$10</span>"));
     field("Giá trị voucher trung bình", vWrap);
 
-    var oIn = el("input", "field-input");
-    oIn.type = "number"; oIn.min = 0; oIn.step = 0.05; oIn.value = simState.opex;
-    oIn.addEventListener("input", function () {
-      var v = +oIn.value; if (v >= 0) { simState.opex = v; paint(); }
-    });
-    field("Chi phí vận hành / rider (opex)", oIn);
+    function decField(label, get, min, apply, hint) {
+      var inp = el("input", "field-input");
+      inp.type = "text";
+      inp.inputMode = "decimal";
+      inp.value = get().toFixed(2);
+      inp.addEventListener("input", function () {
+        var v = parseFloat(String(inp.value).replace(",", ".").replace(/[^\d.]/g, ""));
+        if (!isNaN(v) && v >= min) { apply(v); paint(); }
+      });
+      inp.addEventListener("blur", function () { inp.value = get().toFixed(2); });
+      field(label, inp, hint);
+      return inp;
+    }
 
-    var mIn = el("input", "field-input");
-    mIn.type = "number"; mIn.min = 0.5; mIn.step = 0.01; mIn.value = simState.margin.toFixed(2);
-    mIn.addEventListener("input", function () {
-      var v = +mIn.value; if (v > 0) { simState.margin = v; paint(); }
-    });
-    field("Margin mỗi chuyến", mIn, "fare trung bình × take rate");
+    var oIn = decField("Chi phí vận hành / rider (opex)",
+      function () { return simState.opex; }, 0,
+      function (v) { simState.opex = v; });
+
+    var mIn = decField("Margin mỗi chuyến",
+      function () { return simState.margin; }, 0.01,
+      function (v) { simState.margin = v; }, "fare trung bình × take rate");
 
     var uWrap = el("div", "range-wrap");
     var uTop = el("div", "range-top");
     refs.upliftOut = el("b", "", simState.uplift.toFixed(2));
     uTop.appendChild(refs.upliftOut);
     var uRange = el("input", "");
-    uRange.type = "range"; uRange.min = 0.5; uRange.max = 3; uRange.step = 0.01;
+    uRange.type = "range"; uRange.min = U_MIN; uRange.max = U_MAX; uRange.step = 0.01;
     uRange.value = simState.uplift;
     uRange.addEventListener("input", function () { simState.uplift = +uRange.value; paint(); });
     uWrap.appendChild(uTop); uWrap.appendChild(uRange);
@@ -996,6 +1077,8 @@
     right.appendChild(whatHost);
     row.appendChild(right);
     f.appendChild(row);
+
+    buildWhat();
 
     var sc = el("div", "");
     sc.id = "scenarios";
