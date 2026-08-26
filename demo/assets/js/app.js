@@ -917,8 +917,6 @@
       whatHost.innerHTML = "";
       whatRows = [];
       whatHost.appendChild(el("p", "sim-head", "What-if nhanh"));
-      whatHost.appendChild(el("p", "what-note",
-        "Vế trái là mốc gốc. Kéo thanh bên trái để đổi vế phải và xem ROI của riêng thay đổi đó."));
 
       WHAT.forEach(function (spec) {
         var row = el("div", "what-item");
